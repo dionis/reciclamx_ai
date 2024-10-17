@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
-void main() {
+// void main() {
+//   //Read GOOGLE_GEMINI_KEY from environement
+//   // await dotenv.load(fileName: ".env");
+//   // final GEMINI_KEY = dotenv.env['API_KEY'];
+
+//   //Start the gemini API SDK
+//   // Gemini.init(apiKey: GEMINI_KEY ?? '');
+//   runApp(const MyApp());
+// }
+
+Future<void> main() async {
+  await dotenv.load(fileName: ".env"); // First Load dotenv  in main function
   runApp(const MyApp());
 }
 
@@ -10,8 +24,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    //Read Gemini key from environement
+    //Read GOOGLE_GEMINI_KEY from environement
+
+    final GEMINI_KEY = dotenv.env['GOOGLE_API_KEY'];
+
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -31,13 +51,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(
+        title: 'Flutter Demo Home Page',
+        apiKey: GEMINI_KEY ?? '',
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.apiKey});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -49,6 +72,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final String apiKey;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -56,16 +80,64 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  String textGeminiResponse = 'You have pushed the button this many times:';
+  late final GenerativeModel _model;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  String PROMPT_MESSAGE =
+      'Describe y cuenta los elementos que aparecen en la imagen y da la respuesta por elementos en un json con el nombre del elemento y la cantidad.';
+
+  String PROMPT_MESSGE_ONLY_JSON =
+      'Describe y cuenta los elementos que aparecen en la imagen y da la respuesta por elementos en un json con el nombre del elemento y la cantidad.';
+
+  @override
+  void initState() {
+    super.initState();
+    _model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: widget.apiKey,
+    );
+  }
+
+  Future<void> _incrementCounter() async {
+    try {
+      // 1- Load image to send Gemini LLM
+      ByteData garbichOne = await rootBundle.load('assets/desechoSolidoI.jpeg');
+
+      //Define the prompt and multimodal images
+      final content = [
+        Content.multi([
+          TextPart(PROMPT_MESSAGE),
+          // The only accepted mime types are image/*.
+          DataPart('image/jpeg', garbichOne.buffer.asUint8List())
+        ])
+      ];
+
+      //Call to Gemini for answaer
+      var response = await _model.generateContent(content);
+
+      //Copy answer to show
+      textGeminiResponse = response.text ?? '';
+
+      if (textGeminiResponse == null) {
+        _showError('No response from API.');
+        return;
+      } else {
+        setState(() {
+          _counter++;
+        });
+      }
+    } catch (e) {
+      _showError(e.toString());
+    }
+
+    // setState(() {
+    //   // This call to setState tells the Flutter framework that something has
+    //   // changed in this State, which causes it to rerun the build method below
+    //   // so that the display can reflect the updated values. If we changed
+    //   // _counter without calling setState(), then the build method would not be
+    //   // called again, and so nothing would appear to happen.
+    //   _counter++;
+    // });
   }
 
   @override
@@ -105,8 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            Text(
+              textGeminiResponse,
             ),
             Text(
               '$_counter',
@@ -120,6 +192,28 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  void _showError(String message) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Something went wrong'),
+          content: SingleChildScrollView(
+            child: SelectableText(message),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            )
+          ],
+        );
+      },
     );
   }
 }

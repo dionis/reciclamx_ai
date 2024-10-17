@@ -32,8 +32,15 @@ Anna Muzykina](https://medium.com/@anna_muzykina/mastering-the-gemini-api-with-y
 
 - [Integrating the Gemini API in Your Flutter Application](https://medium.com/@blshashank59/integrating-the-gemini-api-in-your-flutter-application-9e767d578a5e)
 
+- [See additional examples at samples/.](https://pub.dev/packages/google_generative_ai)
+
+- [Official library (See video)]()
+
+
 - [flutter_gemini 2.0.4](https://pub.dev/packages/flutter_gemini)
 
+
+- [How to secure API keys in Flutter (2024) Guide](https://medium.com/@vimehraa29/how-to-secure-api-keys-in-flutter-2024-guide-8fe71b782b4f)
 
 - Prompot to Show 
    Describe y cuenta los elementos que aparecen en la imagen y da la respuesta por elementos en un json con el nombre del elemento y la cantidad.
