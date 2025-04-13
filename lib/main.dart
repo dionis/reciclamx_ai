@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:reciclamx_ai/src/pages/home_pages.dart';
+import 'package:reciclamx_ai/src/pages/pickupWastePhoto_page.dart';
 
 // void main() {
 //   //Read GOOGLE_GEMINI_KEY from environement
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
     final GEMINI_KEY = dotenv.env['GOOGLE_API_KEY'];
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'My Smart Recycling',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
@@ -51,10 +53,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: MyHomePage(
-        title: 'Flutter Demo Home Page',
-        apiKey: GEMINI_KEY ?? '',
-      ),
+
+      //initialRoute: 'home',
+      //routes: {'home': (BuildContext context) => HomePage()},
+
+      initialRoute: 'home',
+      routes: {'home': (BuildContext context) => PickupWastePhoto()},
+
+      // home: MyHomePage(
+      //   title: 'Flutter Demo Home Page',
+      //   apiKey: GEMINI_KEY ?? '',
+      // ),
     );
   }
 }

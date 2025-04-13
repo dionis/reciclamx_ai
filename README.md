@@ -44,3 +44,10 @@ Anna Muzykina](https://medium.com/@anna_muzykina/mastering-the-gemini-api-with-y
 
 - Prompot to Show 
    Describe y cuenta los elementos que aparecen en la imagen y da la respuesta por elementos en un json con el nombre del elemento y la cantidad.
+
+## Pickup Camera and Photo images 
+- (Curso Flutter : Clase 29 - ImagePicker (Gallery, Camera) - Capturar foto desde cámara y galería)[https://youtu.be/Y9OOMTP3UMk
+
+- (Curso Flutter : Clase 30 - Picker Video - Obtener video de la galería)[https://youtu.be/gsbRc8EgTsc]
+
+
