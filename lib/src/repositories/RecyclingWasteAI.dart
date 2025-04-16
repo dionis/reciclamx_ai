@@ -2,6 +2,8 @@ import 'package:dart_openai/dart_openai.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class RecyclingWasteAI {
   // This class is a placeholder for the actual implementation
   // You can add methods and properties as needed
@@ -37,7 +39,8 @@ class RecyclingWasteAI {
           "https://8000-01jrn1kck8v7xj4pqn2bzg3504.cloudspaces.litng.ai"; // the default one.
       OpenAI.showLogs = true;
       OpenAI.showResponsesLogs = true;
-      OpenAI.apiKey = '';
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
+
       // OpenAICompletionModel completion =
       //     await OpenAI.instance.completion.create(
       //   model: "text-davinci-003",
