@@ -4,6 +4,9 @@ import "package:flutter/material.dart";
 import "package:image_picker/image_picker.dart";
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+
+import '../repositories/RecyclingWasteAI.dart';
 
 class PickupWastePhoto extends StatefulWidget {
   const PickupWastePhoto({super.key});
@@ -40,9 +43,7 @@ class _PickupWastePhotoState extends State<PickupWastePhoto> {
               },
               child: Text(pickerGALLERY)),
           const SizedBox(height: 50),
-          photo == null
-              ? const Icon(Icons.image, size: 100)
-              : Image.file(File(photo!.path), width: 100, height: 100),
+          photo == null ? const Icon(Icons.image, size: 100) : getImageFile(),
           const SizedBox(height: 50),
           Expanded(
             child: SingleChildScrollView(
@@ -100,10 +101,25 @@ class _PickupWastePhotoState extends State<PickupWastePhoto> {
   void fetchWebServiceResponse() async {
     // Simulate a delay for the web service call
     await Future.delayed(const Duration(seconds: 2));
+
+    String prompt = 'Describe this image in detail.';
+
+    final aIwasteRequest = RecyclingWasteAI();
+
+    webServiceResponse = await aIwasteRequest.sendRequest(photo!.path, prompt);
     // Update the response
     setState(() {
-      webServiceResponse = "Web service response received!";
+      webServiceResponse = webServiceResponse.isEmpty
+          ? "Web service response received!"
+          : webServiceResponse;
     });
+  }
+
+  Widget getImageFile() {
+    //Call web service to send image and text for LLM request
+    fetchWebServiceResponse();
+
+    return Image.file(File(photo!.path), width: 100, height: 100);
   }
 
   /**
