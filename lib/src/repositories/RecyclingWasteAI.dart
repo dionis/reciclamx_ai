@@ -39,7 +39,7 @@ class RecyclingWasteAI {
           "https://8000-01jrn1kck8v7xj4pqn2bzg3504.cloudspaces.litng.ai"; // the default one.
       OpenAI.showLogs = true;
       OpenAI.showResponsesLogs = true;
-      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY'] ?? ' ';
 
       // OpenAICompletionModel completion =
       //     await OpenAI.instance.completion.create(
