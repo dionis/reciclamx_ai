@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:image_picker/image_picker.dart";
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import "package:reciclamx_ai/src/repositories/RecyclingWasteAI.dart";
 
 class PickupWastePhoto extends StatefulWidget {
   const PickupWastePhoto({super.key});
@@ -19,6 +20,8 @@ class _PickupWastePhotoState extends State<PickupWastePhoto> {
   String serviceResponse = '';
   String webServiceResponse = "Waiting for response...";
 
+  bool sendRequest = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,11 +34,13 @@ class _PickupWastePhotoState extends State<PickupWastePhoto> {
           const SizedBox(height: 50),
           ElevatedButton(
               onPressed: () {
+                sendRequest = true;
                 _imgFromCamera();
               },
               child: Text(pickerCAMERA)),
           ElevatedButton(
               onPressed: () {
+                sendRequest = true;
                 _imgFromGallery();
               },
               child: Text(pickerGALLERY)),
@@ -88,21 +93,33 @@ class _PickupWastePhotoState extends State<PickupWastePhoto> {
 
   Future _imgFromCamera() async {
     photo = await ImagePicker().pickImage(source: ImageSource.camera);
-    setState(() {});
+    setState(() {
+      fetchWebServiceResponse();
+    });
   }
 
   void _imgFromGallery() async {
     photo = await ImagePicker().pickImage(source: ImageSource.gallery);
-    setState(() {});
+    setState(() {
+      fetchWebServiceResponse();
+    });
   }
 
   // Example function to simulate web service call
   void fetchWebServiceResponse() async {
     // Simulate a delay for the web service call
-    await Future.delayed(const Duration(seconds: 2));
+    String message = "Web service response not received!";
+
+    if (sendRequest) {
+      await Future.delayed(const Duration(seconds: 2));
+      sendRequest = !sendRequest;
+      message = "Web service response received!";
+      message = await RecyclingWasteAI()
+          .sendRequest(photo!.path, "Describe this image in detail.");
+    }
     // Update the response
     setState(() {
-      webServiceResponse = "Web service response received!";
+      webServiceResponse = message;
     });
   }
 

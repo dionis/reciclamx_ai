@@ -1,6 +1,8 @@
 import 'package:dart_openai/dart_openai.dart';
-import 'package:dio/dio.dart';
+//import 'package:dio/dio.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -34,12 +36,12 @@ class RecyclingWasteAI {
     // };
 
     try {
-      OpenAI.requestsTimeOut = Duration(seconds: 60); // 60 seconds.
+      OpenAI.requestsTimeOut = Duration(seconds: 100); // 60 seconds.
       OpenAI.baseUrl =
           "https://8000-01jrn1kck8v7xj4pqn2bzg3504.cloudspaces.litng.ai"; // the default one.
       OpenAI.showLogs = true;
       OpenAI.showResponsesLogs = true;
-      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY'] ?? ' ';
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
 
       // OpenAICompletionModel completion =
       //     await OpenAI.instance.completion.create(
@@ -54,17 +56,32 @@ class RecyclingWasteAI {
       //   bestOf: 2,
       // );
 
+      // convert image into file object
+      File _imageFile = File(imagePath);
+
+// Read bytes from the file object
+      Uint8List _bytes = await _imageFile.readAsBytes();
+
+// base64 encode the bytes
+      String _base64String = base64.encode(_bytes);
+
       // the user message that will be sent to the request.
       final userMessage = OpenAIChatCompletionChoiceMessageModel(
         content: [
           OpenAIChatCompletionChoiceMessageContentItemModel.text(
-            "Hello, I am a chatbot created by OpenAI. How are you today?",
+            prompt.isNotEmpty
+                ? prompt
+                : "Hello, I am a chatbot created by OpenAI. How are you today?",
           ),
 
           // //! image url contents are allowed only for models with image support such gpt-4.
           // OpenAIChatCompletionChoiceMessageContentItemModel.imageUrl(
           //   "https://placehold.co/600x400",
           // ),
+
+          OpenAIChatCompletionChoiceMessageContentItemModel.imageUrl(
+            _base64String,
+          ),
         ],
         role: OpenAIChatMessageRole.user,
       );
@@ -73,15 +90,15 @@ class RecyclingWasteAI {
         userMessage,
       ];
 
-      OpenAIChatCompletionModel chatCompletion =
-          await OpenAI.instance.chat.create(
-        model: "gpt-3.5-turbo-1106",
-        responseFormat: {"type": "json_object"},
-        seed: 6,
-        messages: requestMessages,
-        temperature: 0.2,
-        maxTokens: 500,
-      );
+      OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat
+          .create(
+              model: "google/gemma-3-4b-it",
+              responseFormat: {"type": "json_object"},
+              seed: 6,
+              messages: requestMessages,
+              temperature: 0.2,
+              maxTokens: 500,
+              n: 2);
 
       return chatCompletion.choices.first.message.content?.first.text ?? "";
     } catch (e) {

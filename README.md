@@ -2,6 +2,12 @@
 
 A new Flutter project.
 
+## Project Structure
+
+   - **lib**: Directory with source code to Flutter app connecto to AI server
+   - **ligthingAI_server_code**: Directory with source code to a ligthing.ai server (LitServer technologies)
+  
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
